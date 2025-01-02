@@ -17,6 +17,22 @@ static const char TAG[] = "Faikin";
 #include "daikin_s21.h"
 #include "halib.h"
 
+#if 1
+#define	SWING_OFF		"off"
+#define	SWING_ON		"on"
+#define	SWING_VERTICAL		"V"
+#define	SWING_HORIZONTAL	"H"
+#define	SWING_BOTH		"H+V"
+#define	SWING_COMFORT		"C"     // Not standard
+#else
+#define	SWING_OFF		"SWING_OFF"
+#define	SWING_ON		"SWING_ON"
+#define	SWING_VERTICAL		"SWING_VERTICAL"
+#define	SWING_HORIZONTAL	"SWING_HORIZONTAL"
+#define	SWING_BOTH		"SWING_BOTH"
+#define	SWING_COMFORT		"SWING_COMFORT" // Not standard
+#endif
+
 // Macros for setting values
 // They set new values for parameters inside the big "daikin" state struct
 // and also set appropriate flags, so that changes are picked up by the main
@@ -36,6 +52,7 @@ typedef struct s21poll_s
 } s21poll_t;
 struct
 {                               // Status of S21 messages that get a valid response - this is a count of NAKs, so 0 means working...
+   s21poll_t DH1000;
    s21poll_t FY00;
    s21poll_t F1;
    s21poll_t F2;
@@ -148,6 +165,7 @@ struct
 {
    uint8_t loopback:1;
    uint8_t dumping:1;
+   uint8_t hourly:1;            // Hourly stuff
    uint8_t frost:1;             // Frost override
    uint8_t protocol_set:1;
 } b = { 0 };
@@ -1657,6 +1675,8 @@ mqtt_client_callback (int client, const char *prefix, const char *target, const 
       }
       if (!ble_sensor_connected ())
       {
+         if (daikin.env != env)
+            daikin.status_changed = 1;
          daikin.env = env;
          daikin.status_known |= CONTROL_env;    // So we report it
       }
@@ -1727,12 +1747,13 @@ mqtt_client_callback (int client, const char *prefix, const char *target, const 
       }
       if (!strcmp (suffix, "swing"))
       {
-         if (*value == 'C')
+         if (!strcmp (value, SWING_COMFORT))
             jo_bool (s, "comfort", 1);
          else
          {
-            jo_bool (s, "swingh", strchr (value, 'H') ? 1 : 0);
-            jo_bool (s, "swingv", strchr (value, 'V') ? 1 : 0);
+            jo_bool (s, "swingh", !strcmp (value, SWING_HORIZONTAL) || !strcmp (value, SWING_BOTH)
+                     || !strcmp (value, SWING_ON) ? 1 : 0);
+            jo_bool (s, "swingv", !strcmp (value, SWING_VERTICAL) || !strcmp (value, SWING_BOTH) ? 1 : 0);
          }
       }
       if (!strcmp (suffix, "preset"))
@@ -1794,17 +1815,20 @@ daikin_status (void)
       if (bletemp->humset)
          jo_litf (j, "hum", "%.2f", bletemp->hum / 100.0);
       if (bletemp->batset)
-         jo_int (j, "bat", bletemp->temp);
+         jo_int (j, "bat", bletemp->bat);
       if (bletemp->voltset)
-         jo_litf (j, "volt", "%.2f", bletemp->volt / 100.0);
+         jo_litf (j, "volt", "%.3f", bletemp->volt / 1000.0);
       jo_close (j);
    }
    if (ble && *autob)
       jo_string (j, "autob", autob);
 #endif
    if (daikin.remote)
+   {
       jo_bool (j, "remote", 1);
-   else
+      if (!isnan (daikin.env))
+         jo_litf (j, "env", "%.1f", daikin.env);
+   } else
    {
       jo_litf (j, "autor", "%.1f", (float) autor / autor_scale);
       jo_litf (j, "autot", "%.1f", (float) autot / autot_scale);
@@ -3033,15 +3057,16 @@ send_ha_config (void)
          jo_string (j, "swing_mode_stat_t", hastatus);
          jo_string (j, "swing_mode_stat_tpl", "{{value_json.swing}}");
          jo_array (j, "swing_modes");
-         jo_string (j, NULL, "off");
-         if (daikin.status_known & CONTROL_swingh)
-            jo_string (j, NULL, "H");
-         if (daikin.status_known & CONTROL_swingv)
-            jo_string (j, NULL, "V");
+         jo_string (j, NULL, SWING_OFF);
          if ((daikin.status_known & (CONTROL_swingh | CONTROL_swingv)) == (CONTROL_swingh | CONTROL_swingv))
-            jo_string (j, NULL, "H+V");
+         {
+            jo_string (j, NULL, SWING_HORIZONTAL);
+            jo_string (j, NULL, SWING_VERTICAL);
+            jo_string (j, NULL, SWING_BOTH);
+         } else if (daikin.status_known & CONTROL_swingh)
+            jo_string (j, NULL, SWING_ON);
          if (daikin.status_known & CONTROL_comfort)
-            jo_string (j, NULL, "C");
+            jo_string (j, NULL, SWING_COMFORT);
          if (daikin.status_known & CONTROL_sleep)
             jo_string (j, NULL, "SLP");
          jo_close (j);
@@ -3283,7 +3308,10 @@ revk_state_extra (jo_t j)
       jo_bool (j, "led", daikin.led);
    if (daikin.status_known & (CONTROL_swingh | CONTROL_swingv | CONTROL_comfort | CONTROL_sleep))
       jo_string (j, "swing",
-                 daikin.comfort ? "C" : daikin.swingh & daikin.swingv ? "H+V" : daikin.swingh ? "H" : daikin.swingv ? "V" : daikin.sleep ? "SLP" : "off");
+                 daikin.comfort ? SWING_COMFORT : daikin.swingh
+                 && daikin.swingv ? SWING_BOTH : daikin.
+                 swingh ? (daikin.status_known & CONTROL_swingv) ? SWING_HORIZONTAL : SWING_ON : daikin.
+                 swingv ? SWING_VERTICAL : daikin.sleep ? "SLP" : SWING_OFF);
    if (daikin.status_known & (CONTROL_econo | CONTROL_powerful))
       jo_string (j, "preset", daikin.econo ? "eco" : daikin.powerful ? "boost" : nohomepreset ? "none" : "home");       // Limited modes
    if (haswitches)
@@ -3348,7 +3376,7 @@ uart_setup (void)
    if (err)
    {
       jo_t j = jo_object_alloc ();
-      jo_string (j, "error", "Failed to set up commmunication port");
+      jo_string (j, "error", "Failed to set up communication port");
       jo_int (j, "uart", uart);
       jo_string (j, "description", esp_err_to_name (err));
       revk_error ("uart", &j);
@@ -3735,7 +3763,15 @@ app_main ()
                   poll (R, e,); // Humidity
                //if(s21extra)poll (F, U, 02);
                //if(s21extra)poll (F, U, 04);
-               
+               {
+                  uint8_t n = ((time (0) / 3600) & 1);
+                  if (n != b.hourly)
+                  {             // Hourly
+                     b.hourly = n;
+                     poll (D, H, 1000);
+                  }
+               }
+
                if (s21.rgfan)
                   poll (R, G,); // Needed to confirm fan changes.
 
@@ -4258,6 +4294,7 @@ app_main ()
          {                      // End of auto mode and no env data either
             daikin.controlvalid = 0;
             daikin.status_known &= ~CONTROL_env;
+            daikin.status_changed = 1;
             daikin.env = NAN;
             daikin.remote = 0;
             controlstop ();
