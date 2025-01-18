@@ -1507,7 +1507,7 @@ save_settings_if_changed (jo_t s)
 
 // Parse control JSON, arrived by MQTT, and apply values
 const char *
-daikin_control (jo_t j)
+daikin_control (jo_t j, uint8_t insecure)
 {                               // Control settings as JSON
    jo_type_t t = jo_next (j);   // Start object
    jo_t s = NULL;
@@ -1535,7 +1535,13 @@ daikin_control (jo_t j)
       s = auto_mode_control_item (tag, val, s);
       t = jo_skip (j);
    }
-   save_settings_if_changed (s);
+   if (s)
+   {
+      if (insecure || !*password)
+         save_settings_if_changed (s);
+      else
+         jo_free (s);
+   }
    return "";
 }
 
@@ -1566,7 +1572,7 @@ mqtt_client_callback (int client, const char *prefix, const char *target, const 
    if (client || !prefix || target || strcmp (prefix, topiccommand))
       return NULL;              // Not for us or not a command from main MQTT
    if (!suffix)
-      return daikin_control (j);        // General setting
+      return daikin_control (j, 1);     // General setting - we allow the setting changes even with no password
    if (!strcmp (suffix, "reconnect"))
    {
       daikin.talking = 0;       // Disconnect and reconnect
@@ -1758,7 +1764,7 @@ mqtt_client_callback (int client, const char *prefix, const char *target, const 
    if (jo_next (s) == JO_TAG)
    {
       jo_rewind (s);
-      ret = daikin_control (s);
+      ret = daikin_control (s, 1);
    }
    jo_free (&s);
    return ret;
