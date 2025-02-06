@@ -2036,55 +2036,60 @@ web_root (httpd_req_t * req)
       {
          revk_web_send (req, "<tr><td colspan=6>%s</td></tr>", note);
       }
-      void addtime (const char *tag, const char *field)
+      if (nofaikoutauto)
+         addnote ("Faikin auto controls are hidden");
+      else
       {
+         void addtime (const char *tag, const char *field)
+         {
+            revk_web_send (req,
+                           "<td align=right>%s</td><td><input class=time type=time title=\"Set 00:00 to disable\" id='%s' onchange=\"w('%s',this.value);\"></td>",
+                           tag, field, field);
+         }
          revk_web_send (req,
-                        "<td align=right>%s</td><td><input class=time type=time title=\"Set 00:00 to disable\" id='%s' onchange=\"w('%s',this.value);\"></td>",
-                        tag, field, field);
-      }
-      revk_web_send (req,
-                     "<div id=remote><hr><p>Faikin-auto mode (sets hot/cold and temp high/low to aim for the following target), and timed and auto power on/off.</p><table>");
-      add (NULL, "Enable", "autor", "Off", "0", fahrenheit ? "±0.9℉" : "±½℃", "0.5", fahrenheit ? "±1.8℉" : "±1℃", "1",
-           fahrenheit ? "±3.6℉" : "±2℃", "2", NULL);
-      addslider (NULL, "Target", "autot", tmin, tmax, get_temp_step ());
-      addnote ("Timed on and off (set other than 00:00)<br>Automated on/off if temp is way off target.");
-      tr (NULL);
-      addtime ("On", "auto1");
-      addtime ("Off", "auto0");
-      addb ("Auto", "autop", "Auto ⏼");
-      revk_web_send (req, "</tr>");
+                        "<div id=remote><hr><p>Faikin-auto mode (sets hot/cold and temp high/low to aim for the following target), and timed and auto power on/off.</p><table>");
+         add (NULL, "Enable", "autor", "Off", "0", fahrenheit ? "±0.9℉" : "±½℃", "0.5", fahrenheit ? "±1.8℉" : "±1℃", "1",
+              fahrenheit ? "±3.6℉" : "±2℃", "2", NULL);
+         addslider (NULL, "Target", "autot", tmin, tmax, get_temp_step ());
+         addnote ("Timed on and off (set other than 00:00)<br>Automated on/off if temp is way off target.");
+         tr (NULL);
+         addtime ("On", "auto1");
+         addtime ("Off", "auto0");
+         addb ("Auto", "autop", "Auto ⏼");
+         revk_web_send (req, "</tr>");
 #ifdef ELA
-      if (ble)
-      {
-         addnote ("External temperature reference for Faikin-auto mode");
-         revk_web_send (req, "<tr><td>BLE</td><td colspan=6>"   //
-                        "<select name=autob onchange=\"w('autob',this.options[this.selectedIndex].value);\">");
-         if (!*autob)
-            revk_web_send (req, "<option value=\"\">-- None --");
-         char found = 0;
-         for (bleenv_t * e = bleenv; e; e = e->next)
+         if (ble)
          {
-            revk_web_send (req, "<option value=\"%s\"", e->name);
-            if (*autob && !strcmp (autob, e->name))
+            addnote ("External temperature reference for Faikin-auto mode");
+            revk_web_send (req, "<tr><td>BLE</td><td colspan=6>"   //
+                           "<select name=autob onchange=\"w('autob',this.options[this.selectedIndex].value);\">");
+            if (!*autob)
+               revk_web_send (req, "<option value=\"\">-- None --");
+            char found = 0;
+            for (bleenv_t * e = bleenv; e; e = e->next)
             {
-               revk_web_send (req, " selected");
-               found = 1;
+               revk_web_send (req, "<option value=\"%s\"", e->name);
+               if (*autob && !strcmp (autob, e->name))
+               {
+                  revk_web_send (req, " selected");
+                  found = 1;
+               }
+               revk_web_send (req, ">%s", e->name);
+               if (!e->missing && e->rssi)
+                  revk_web_send (req, " %ddB", e->rssi);
             }
-            revk_web_send (req, ">%s", e->name);
-            if (!e->missing && e->rssi)
-               revk_web_send (req, " %ddB", e->rssi);
+            if (!found && *autob)
+            {
+               revk_web_send (req, "<option selected value=\"%s\">%s", autob, autob);
+            }
+            revk_web_send (req, "</select>");
+            if (ble && (uptime () < 60 || !found))
+               revk_web_send (req, " (reload to refresh list)");
+            revk_web_send (req, "</td></tr>");
          }
-         if (!found && *autob)
-         {
-            revk_web_send (req, "<option selected value=\"%s\">%s", autob, autob);
-         }
-         revk_web_send (req, "</select>");
-         if (ble && (uptime () < 60 || !found))
-            revk_web_send (req, " (reload to refresh list)");
-         revk_web_send (req, "</td></tr>");
-      }
 #endif
-      revk_web_send (req, "</table></div>");
+         revk_web_send (req, "</table></div>");
+      }
    }
    // ESP8266: No websockets
    revk_web_send (req, "</form>"        //
