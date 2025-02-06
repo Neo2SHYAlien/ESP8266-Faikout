@@ -1861,10 +1861,20 @@ web_head (httpd_req_t * req, const char *title)
 static esp_err_t
 web_icon (httpd_req_t * req)
 {                               // serve image -  maybe make more generic file serve
-   extern const char start[] asm ("_binary_apple_touch_icon_png_start");
-   extern const char end[] asm ("_binary_apple_touch_icon_png_end");
+   extern const char istart[] asm ("_binary_apple_touch_icon_png_start");
+   extern const char iend[] asm ("_binary_apple_touch_icon_png_end");
    httpd_resp_set_type (req, "image/png");
-   httpd_resp_send (req, start, end - start);
+   httpd_resp_send (req, istart, iend - istart);
+   return ESP_OK;
+}
+
+static esp_err_t
+web_favicon (httpd_req_t * req)
+{                               // serve image -  maybe make more generic file serve
+   extern const char fistart[] asm ("_binary_favicon_ico_start");
+   extern const char fiend[] asm ("_binary_favicon_ico_end");
+   httpd_resp_set_type (req, "image/x-icon");
+   httpd_resp_send (req, fistart, fiend - fistart);
    return ESP_OK;
 }
 
@@ -3481,7 +3491,7 @@ app_main ()
       config.max_open_sockets += 5;     // More sockets
       // When updating the code below, make sure this is enough
       // Note that we're also adding revk's own web config handlers
-      config.max_uri_handlers = 16 + revk_num_web_handlers ();
+      config.max_uri_handlers = 17 + revk_num_web_handlers ();
       ESP_LOGE (TAG, "HTTPD stack %u sockets %u handlers %u", config.stack_size, config.max_open_sockets, config.max_uri_handlers);
       if (!httpd_start (&webserver, &config))
       {
@@ -3491,6 +3501,7 @@ app_main ()
          if (webcontrol)
          {
             register_get_uri ("/apple-touch-icon.png", web_icon);
+            register_get_uri ("/favicon.ico", web_favicon);
             // ESP8266: No websockets
             register_get_uri ("/status", web_status);
             register_get_uri ("/control", web_control);
