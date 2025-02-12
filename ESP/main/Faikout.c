@@ -1937,7 +1937,7 @@ web_root (httpd_req_t * req)
    {
       addh (class, tag);
       revk_web_send (req,
-                     "<td colspan=6><a onclick=\"if(+document.F.%s.value>%d)w('%s',+document.F.%s.value-%s);\" class=pn>-</a><input type=range class=temp min=%d max=%d step=%s id=%s onchange=\"w('%s',+this.value);\"><a onclick=\"if(+document.F.%s.value<%d)w('%s',+document.F.%s.value+%s);\" class=pn>+</a><button id=\"T%s\" onclick=\"return false;\"></button></td>",
+                     "<td colspan=4><a onclick=\"if(+document.F.%s.value>%d)w('%s',+document.F.%s.value-%s);\" class=pn>-</a><input type=range class=temp min=%d max=%d step=%s id=%s onchange=\"w('%s',+this.value);\"><a onclick=\"if(+document.F.%s.value<%d)w('%s',+document.F.%s.value+%s);\" class=pn>+</a></td><td><button id=\"T%s\" onclick=\"return false;\"></button></td>",
                      field, min, field, field, step, min, max, step, field, field, field, max, field, field, step, field);
       addf (tag);
    }
