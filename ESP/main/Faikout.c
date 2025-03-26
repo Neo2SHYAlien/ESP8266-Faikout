@@ -3785,6 +3785,7 @@ app_main ()
                   poll (R, e,); // Humidity
                //if(s21extra)poll (F, U, 02);
                //if(s21extra)poll (F, U, 04);
+               if (!nohourly)
                {
                   uint8_t n = ((time (0) / 3600) & 1);
                   if (n != b.hourly)
