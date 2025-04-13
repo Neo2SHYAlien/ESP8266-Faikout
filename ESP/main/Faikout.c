@@ -1896,7 +1896,7 @@ web_root (httpd_req_t * req)
              *instance ? instance :
 #endif
              hostname == revk_id ? revk_app : hostname);
-   revk_web_send (req, "<div id=top class=off><form name=F><table id=live>");
+   revk_web_send (req, "<div id=top class=off><form name=F class='xautoe xautor xslave xloopback xantifreeze xcontrol xoffline'><table id=live>");
    void tre (void)
    {
       revk_web_send (req, "</tr>");
@@ -2042,76 +2042,81 @@ web_root (httpd_req_t * req)
       tre();
    }
    revk_web_send (req, "</table>"       //
-                  "<p id=offline style='display:none'><b>System is offline (no data tx/rx).</b></p>"    //
-                  "<p id=loopback style='display:none'><b>System is in loopback test.</b></p>"  //
+                  "<p class=offline><b>System is offline (no data tx/rx).</b></p>"        //
+                  "<p class=loopback><b>System is in loopback test.</b></p>"     //
                   "<p id=shutdown style='display:none;color:red;'></p>" //
-                  "<p id=slave style='display:none'>❋ Another unit is controlling the mode, so this unit is not operating at present.</p>"    //
-                  "<p id=control style='display:none'>✷ Automatic control means some functions are limited.</p>"      //
-                  "<p id=antifreeze style='display:none'>❄ System is in anti-freeze now, so cooling is suspended.</p>");
+                  "<p class=slave>❋ Another unit is controlling the mode, so this unit is not operating at present.</p>"        //
+                  "<p class=control>✷ Automatic control means some functions are limited.</p>"  //
+                  "<p class=antifreeze>❄ System is in anti-freeze now, so cooling is suspended.</p>");
 
-   if (!daikin.remote && (autor || ble_sensor_connected () || !nofaikoutauto))
+   void addnote (const char *class, const char *note)
    {
-      tr (NULL);
-      addb ("Enable", "autoe", "Enable");
-      revk_web_send (req, "</tr>");
-      void addnote (const char *note)
+      tr (class);
+      revk_web_send (req, "<td colspan=6>%s</td>", note);
+      tre ();
+   }
+   if (nofaikoutauto && (*password || !autor))
+      addnote (NULL, "Faikout auto controls are hidden.");     // Hide works if password set, or if not actually set up for auto, otherwise show
+   else if (!daikin.remote && (autor || ble_sensor_connected () || !nofaikoutauto))
+   {
+      void addtime (const char *tag, const char *field)
       {
-         revk_web_send (req, "<tr><td colspan=6>%s</td></tr>", note);
-      }
-      if (nofaikoutauto)
-         addnote ("Faikin auto controls are hidden");
-      else
-      {
-         void addtime (const char *tag, const char *field)
-         {
-            revk_web_send (req,
-                           "<td align=right>%s</td><td><input class=time type=time title=\"Set 00:00 to disable\" id='%s' onchange=\"w('%s',this.value);\"></td>",
-                           tag, field, field);
-         }
          revk_web_send (req,
-                        "<div id=remote><hr><p>Faikin-auto mode (sets hot/cold and temp high/low to aim for the following target), and timed and auto power on/off.</p><table>");
-         add (NULL, "Enable", "autor", "Off", "0", fahrenheit ? "±0.9℉" : "±½℃", "0.5", fahrenheit ? "±1.8℉" : "±1℃", "1",
-              fahrenheit ? "±3.6℉" : "±2℃", "2", NULL);
-         addslider (NULL, "Target", "autot", tmin, tmax, get_temp_step ());
-         addnote ("Timed on and off (set other than 00:00)<br>Automated on/off if temp is way off target.");
-         tr (NULL);
+                        "<td align=right>%s</td><td><input class=time type=time title=\"Set 00:00 to disable\" id='%s' onchange=\"w('%s',this.value);\"></td>",
+                        tag, field, field);
+      }
+      revk_web_send (req,
+                     "<div class=remote><hr><p>Faikout-auto mode (sets hot/cold and temp high/low to aim for the following target), and timed and auto power on/off.</p><table>");
+      tr (NULL);
+      if (!*password)
+      {
+         addb ("Enable", "autoe", "Enable");
+         revk_web_send (req, "<td colspan=4>Auto functions...</td>");
+      }
+      add ("autoe", "Auto temp", "autor", "Off", "0", fahrenheit ? "±0.9℉" : "±½℃", "0.5", fahrenheit ? "±1.8℉" : "±1℃", "1",
+           fahrenheit ? "±3.6℉" : "±2℃", "2", NULL);
+      addslider ("autoe autor", "Auto target", "autot", tmin, tmax, get_temp_step ());
+#ifdef ELA
+      if (ble && !*password)
+      {
+         addnote ("autoe autor", "External temperature reference for auto temp.");
+         revk_web_send (req, "<tr><td>BLE</td><td colspan=6>"   //
+                        "<select name=autob onchange=\"w('autob',this.options[this.selectedIndex].value);\">");
+         if (!*autob)
+            revk_web_send (req, "<option value=\"\">-- None --");
+         char found = 0;
+         for (bleenv_t * e = bleenv; e; e = e->next)
+         {
+            revk_web_send (req, "<option value=\"%s\"", e->name);
+            if (*autob && !strcmp (autob, e->name))
+            {
+               revk_web_send (req, " selected");
+               found = 1;
+            }
+            revk_web_send (req, ">%s", e->name);
+            if (!e->missing && e->rssi)
+               revk_web_send (req, " %ddB", e->rssi);
+         }
+         if (!found && *autob)
+         {
+            revk_web_send (req, "<option selected value=\"%s\">%s", autob, autob);
+         }
+         revk_web_send (req, "</select>");
+         if (ble && (uptime () < 60 || !found))
+            revk_web_send (req, " (reload to refresh list)");
+         revk_web_send (req, "</td></tr>");
+      }
+#endif
+      if (!*password)
+      {                         // Timed controls need password
+         addnote ("autoe", "Auto timed on and off, and auto temperature on/off.");
+         tr ("autoe");
          addtime ("On", "auto1");
          addtime ("Off", "auto0");
-         addb ("Auto", "autop", "Auto ⏼");
-         revk_web_send (req, "</tr>");
-#ifdef ELA
-         if (ble)
-         {
-            addnote ("External temperature reference for Faikin-auto mode");
-            revk_web_send (req, "<tr><td>BLE</td><td colspan=6>"   //
-                           "<select name=autob onchange=\"w('autob',this.options[this.selectedIndex].value);\">");
-            if (!*autob)
-               revk_web_send (req, "<option value=\"\">-- None --");
-            char found = 0;
-            for (bleenv_t * e = bleenv; e; e = e->next)
-            {
-               revk_web_send (req, "<option value=\"%s\"", e->name);
-               if (*autob && !strcmp (autob, e->name))
-               {
-                  revk_web_send (req, " selected");
-                  found = 1;
-               }
-               revk_web_send (req, ">%s", e->name);
-               if (!e->missing && e->rssi)
-                  revk_web_send (req, " %ddB", e->rssi);
-            }
-            if (!found && *autob)
-            {
-               revk_web_send (req, "<option selected value=\"%s\">%s", autob, autob);
-            }
-            revk_web_send (req, "</select>");
-            if (ble && (uptime () < 60 || !found))
-               revk_web_send (req, " (reload to refresh list)");
-            revk_web_send (req, "</td></tr>");
-         }
-#endif
-         revk_web_send (req, "</table></div>");
+         addb ("Auto ⏼", "autop", "Auto\non/off");
+         tre ();
       }
+      revk_web_send (req, "</table></div>");
    }
    // ESP8266: No websockets
    revk_web_send (req, "</form>"        //
@@ -2144,11 +2149,15 @@ web_root (httpd_req_t * req)
                   "{"
                   "g('top').className='on';"
                   "o=JSON.parse(rt);"
-                  "h('offline',!o.online&&o.protocol!='loopback');"     //
-                  "h('loopback',o.protocol=='loopback');"       //
-                  "h('control',o.control);"     //
-                  "h('slave',o.slave);" //
-                  "h('remote',!o.remote);"      //
+                  "if(document.F)document.F.className="
+                     "(!o.online&&o.protocol!='loopback'?'':'xoffline ')+"
+                     "(o.protocol=='loopback'?'':'xloopback ')+"
+                     "(o.control?'':'xcontrol ')+"
+                     "(o.slave?'':'xslave ')+"
+                     "(o.remote?'isremote ':'')+"
+                     "(o.antifreeze?'':'xantifreeze ')+"
+                     "(o.autor>0?'':'xautor ')+"
+                     "(o.autoe?'':'xautoe ');"
                   "b('power',o.power);" //
                   "b('swingh',o.swingh);"       //
                   "b('swingv',o.swingv);"       //
