@@ -2037,7 +2037,7 @@ web_root (httpd_req_t * req)
                   "<p id=control style='display:none'>✷ Automatic control means some functions are limited.</p>"      //
                   "<p id=antifreeze style='display:none'>❄ System is in anti-freeze now, so cooling is suspended.</p>");
 
-   if (autor || ble_sensor_connected () || (!nofaikoutauto && !daikin.remote))
+   if (!daikin.remote && (autor || ble_sensor_connected () || !nofaikoutauto))
    {
       tr (NULL);
       addb ("Enable", "autoe", "Enable");
@@ -3654,7 +3654,7 @@ app_main ()
                daikin.status_known &= ~CONTROL_env;     // So we don't report it
          }
 #endif
-         if (autoe && autor && autot)
+         if (!daikin.remote && autoe && autor && autot)
          {                      // Automatic setting of "external" controls, autot is temp(*autot_scale), autor is range(*autor_scale), autob is BLE name
             daikin.controlvalid = uptime () + 10;
             daikin.mintarget = (float) autot / autot_scale - (float) autor / autor_scale;
@@ -4175,7 +4175,7 @@ app_main ()
          {
             b.frost = 0;
             daikin_set_v (power, 0);
-         } else if (autoe && (auto0 || auto1) && (auto0 != auto1))
+         } else if (!daikin.remote && autoe && (auto0 || auto1) && (auto0 != auto1))
          {                      // Auto on/off, 00:00 is not considered valid, use 00:01. Also setting same on and off is not considered valid
             static int last = 0;
             time_t now = time (0);
@@ -4279,7 +4279,7 @@ app_main ()
                      // No Approaching and no Beyond, so it's in desired range (autot +/- autor)
                      // Only affects if autop is active
                      // Turn off as 100% in band for last two period
-                     else if (autoe && (autop || (daikin.remote && autoptemp)) && !count_approaching_2_samples
+                     else if (((autoe && autop) || (daikin.remote && autoptemp)) && !count_approaching_2_samples
                               && !countBeyond2Samples)
                      {          // Auto off
                         jo_bool (j, "set-power", 0);
@@ -4287,7 +4287,7 @@ app_main ()
                      }
                   }
                   // Daikin is off
-                  else if (autoe && (autop || (daikin.remote && autoptemp))     // AutoP Mode only
+                  else if (((autoe && autop) || (daikin.remote && autoptemp))   // AutoP Mode only
                            && (daikin.countApproaching == daikin.countTotal || daikin.countBeyond == daikin.countTotal) // full cycle approaching or full cycle beyond
                            && (measured_temp >= max + (float) autoptemp / autoptemp_scale       // temp out of desired range
                                || measured_temp <= min - (float) autoptemp / autoptemp_scale) && (!lockmode || countBeyond2Samples != count_total_2_samples))   // temp out of desired range
