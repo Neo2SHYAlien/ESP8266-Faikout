@@ -3489,6 +3489,9 @@ app_main ()
    revk_boot (&mqtt_client_callback);
    revk_start ();
 
+   if (*autotopic)
+      revk_mqtt_sub (0, autotopic, autosub, *autopayload ? autopayload : "env");
+
    if (udpdiscovery)
       revk_task ("daikin_discovery", legacy_discovery_task, NULL, 0);
 
