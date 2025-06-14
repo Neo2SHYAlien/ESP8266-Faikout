@@ -125,7 +125,7 @@ struct FanMode
    const char *name;
 };
 
-const struct FanMode fans[] = {
+const struct FanMode fans_5_auto[] = {
    {'A', "auto"},
    {'1', "low"},
    {'2', "lowMedium"},
@@ -136,7 +136,7 @@ const struct FanMode fans[] = {
    {0, NULL}
 };
 
-const struct FanMode cn_wired_fans[] = {
+const struct FanMode fans_3_auto[] = {
    {'A', "auto"},
    {'1', "low"},
    {0, "lowMedium"},            // Not used
@@ -203,10 +203,24 @@ proto_name (void)
    return uart_enabled ()? prototype[proto_type ()] : "MOCK";
 }
 
+static inline int
+fan_5_auto (void)
+{                               // Fan is 5 levels and auto
+   return fantype == REVK_SETTINGS_FANTYPE_5_LEVEL_AUTO || (fantype == REVK_SETTINGS_FANTYPE_DEFAULT
+                                                            && proto_type () == PROTO_TYPE_S21);
+}
+
+static inline int
+fan_3_auto (void)
+{                               // Fan is 3 levels and auto
+   return fantype == REVK_SETTINGS_FANTYPE_3_LEVEL_AUTO || (fantype == REVK_SETTINGS_FANTYPE_DEFAULT
+                                                            && proto_type () == PROTO_TYPE_CN_WIRED);
+}
+
 static const struct FanMode *
 get_fan_modes (void)
 {
-   return proto_type () == PROTO_TYPE_CN_WIRED ? cn_wired_fans : fans;
+   return fan_3_auto ()? fans_3_auto : fans_5_auto;
 }
 
 // Decode fan mode by name into a character (A12345Q)
@@ -241,15 +255,6 @@ get_temp_step (void)
    default:                    // PROTO_TYPE_X50
       return "0.1";
    }
-}
-
-// 'fanstep' setting overrides number of available fan speeds
-// 1 = force 5 speeds; 2 = force 3 speeds; 0 = default
-// For experiments only !
-static int
-have_5_fan_speeds (void)
-{
-   return fanstep == 1 || (!fanstep && proto_type () == PROTO_TYPE_S21);
 }
 
 #ifdef ELA
@@ -1958,9 +1963,9 @@ web_root (httpd_req_t * req)
       add (NULL, "Mode", "A", "Heat", "H", "Cool", "C", "Dry", "D", "Fan", "F", NULL);
    else
       add (NULL, "Mode", "mode", "Auto", "A", "Heat", "H", "Cool", "C", "Dry", "D", "Fan", "F", NULL);
-   if (have_5_fan_speeds ())
+   if (fan_5_auto ())
       add (NULL, "Fan", "fan", "1", "1", "2", "2", "3", "3", "4", "4", "5", "5", "Night", "Q", "Auto", "A", NULL);
-   else if (proto_type () == PROTO_TYPE_CN_WIRED)
+   else if (fan_3_auto ())
       add (NULL, "Fan", "fan", "Low", "1", "Mid", "3", "High", "5", "Auto", "A", "Quiet", "Q", NULL);
    else
       add (NULL, "Fan", "fan", "Low", "1", "Mid", "3", "High", "5", NULL);
@@ -3063,13 +3068,10 @@ send_ha_config (void)
          jo_string (j, "fan_mode_cmd_t", "~/fan");
          jo_string (j, "fan_mode_stat_t", hastatus);
          jo_string (j, "fan_mode_stat_tpl", "{{value_json.fan}}");
-         if (have_5_fan_speeds ())
-         {
-            addmodes (j, fans);
-         } else if (proto_type () == PROTO_TYPE_CN_WIRED)
-         {
-            addmodes (j, cn_wired_fans);
-         }
+         if (fan_5_auto ())
+            addmodes (j, fans_5_auto);
+         else if (fan_3_auto ())
+            addmodes (j, fans_3_auto);
          // [“auto”, “low”, “medium”, “high”] is the default, no need to report
       }
       if (daikin.status_known & (CONTROL_swingh | CONTROL_swingv | CONTROL_comfort | CONTROL_sleep))
@@ -4241,7 +4243,7 @@ app_main ()
                {                // Power, mode, fan, automation
                   if (daikin.power)     // Daikin is on
                   {
-                     int step = (fanstep ? : (proto_type () == PROTO_TYPE_S21) ? 1 : 2);
+                     int step = fan_5_auto ()? 1 : 2;
 
                      // A lot more beyond than total counts and no approaching in the last two cycles
                      // Time to switch modes (heating/cooling) and reduce fan to minimum
