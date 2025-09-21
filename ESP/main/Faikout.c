@@ -168,6 +168,7 @@ struct
    uint8_t hourly:1;            // Hourly stuff
    uint8_t frost:1;             // Frost override
    uint8_t protocol_set:1;
+   uint8_t startup:1;           // In a startup phase (i.e. full comms not yet confirmed)
 } b = { 0 };
 
 static httpd_handle_t webserver = NULL;
@@ -350,7 +351,7 @@ daikin_set_value (const char *name, uint8_t * ptr, uint64_t flag, uint8_t value)
 {                               // Setting a value (uint8_t)
    if (*ptr == value)
       return NULL;              // No change
-   if (!(daikin.status_known & flag))
+   if (b.startup && !(daikin.status_known & flag))
       return "Setting cannot be controlled";
    if (fanrun && !daikin.fanrun && value == 0 && !strcmp (name, "power")
        && (daikin.mode == FAIKIN_MODE_COOL || daikin.mode == FAIKIN_MODE_DRY
@@ -379,7 +380,7 @@ daikin_set_int (const char *name, int *ptr, uint64_t flag, int value)
 {                               // Setting a value (uint8_t)
    if (*ptr == value)
       return NULL;              // No change
-   if (!(daikin.status_known & flag))
+   if (b.startup && !(daikin.status_known & flag))
       return "Setting cannot be controlled";
    xSemaphoreTake (daikin.mutex, portMAX_DELAY);
    daikin.control_changed |= flag;
@@ -885,6 +886,7 @@ daikin_cn_wired_incoming_packet (const uint8_t * payload)
    {
    case CNW_SENSOR_REPORT:
       report_float (home, decode_bcd (payload[CNW_TEMP_OFFSET]));
+      b.startup = 0;            // End of startup
       break;
    case CNW_MODE_CHANGED:
       new_mode = cnw_decode_mode (payload);
@@ -3480,6 +3482,7 @@ app_main ()
    }
 #endif
    daikin.mutex = xSemaphoreCreateMutex ();
+   b.startup = 1;
    daikin.status_known = CONTROL_online;
 #define	t(name)	daikin.name=NAN;
 #define	r(name)	daikin.min##name=NAN;daikin.max##name=NAN;
@@ -3683,6 +3686,8 @@ app_main ()
                poll (T);
                poll (P);
                poll (S);
+               if (daikin.talking)
+                  b.startup = 0; // End of startup
 #undef poll
             } else if (proto_type () == PROTO_TYPE_CN_WIRED)
             {                   // CN WIRED
@@ -3824,13 +3829,21 @@ app_main ()
                case 5:
                   poll (R, N,); // Angle
                   if (!s21extra && s21.rgfan)
-                     rcycle = 0;        // End as RG done anyway
+                  {
+                     rcycle = 0; // End as RG done anyway
+                     if (daikin.talking)
+                        b.startup = 0;  // End of startup
+                  }
                   break;
                case 6:
                   if (!s21.rgfan)
                      poll (R, G,);      // Fan
                   if (!s21extra)
-                     rcycle = 0;        // End of normal R polling - the following are debug only
+                  {
+                     rcycle = 0; // End of normal R polling - the following are debug only
+                     if (daikin.talking)
+                        b.startup = 0;  // End of startup
+                  }
                   break;
                case 7:
                   poll (R, M,);
@@ -3841,6 +3854,8 @@ app_main ()
                case 9:
                   poll (R, D,);
                   rcycle = 0;   // End of debug cycle
+                  if (daikin.talking)
+                     b.startup = 0;     // End of startup
                   break;
                }
                if (!ok)
@@ -3989,6 +4004,8 @@ app_main ()
                }
                daikin_x50a_command (0xCA, sizeof (ca), ca);
                daikin_x50a_command (0xCB, sizeof (cb), cb);
+               if (daikin.talking)
+                  b.startup = 0; // End of startup
                if (debugsend)
                {
                   uint8_t cmd = 0,
