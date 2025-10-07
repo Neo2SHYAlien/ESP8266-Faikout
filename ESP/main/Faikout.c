@@ -3483,6 +3483,14 @@ app_main ()
 #include "acextras.m"
    revk_boot (&mqtt_client_callback);
    revk_start ();
+   // Normalising settings: old OTA hosts (this port used ota.revk.uk until the
+   // Faikout rename) must follow the new name, or OTA checks fail after update
+   if (!strcmp (otahost, "ota.revk.uk") || !strcmp (otahost, "ota.faikin.uk"))
+   {
+      jo_t j = jo_object_alloc ();
+      jo_string (j, "otahost", "ota.faikout.uk");
+      revk_settings_store (j, NULL, REVK_SETTINGS_PASSOVERRIDE);
+   }
 
    if (*autotopic)
       revk_mqtt_sub (0, autotopic, autosub, *autopayload ? autopayload : "env");
