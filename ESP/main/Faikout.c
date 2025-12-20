@@ -1841,17 +1841,30 @@ web_root (httpd_req_t * req)
       return revk_web_settings (req);   // Direct to web set up
    web_head (req, hostname == revk_id ? appname : hostname);
    revk_web_send (req, "<div id=top class=off><form name=F><table id=live>");
-   void addh (const char *tag)
+   void tre (void)
+   {
+      revk_web_send (req, "</tr>");
+   }
+   void tr (const char *c)
+   {
+      if (c)
+         revk_web_send (req, "<tr class='%s'>", c);
+      else
+         revk_web_send (req, "<tr>");
+   }
+   void addh (const char *class, const char *tag)
    {                            // Head (well, start of row)
-      revk_web_send (req, "<tr><td align=right>%s</td>", tag);
+      tr (class);
+      revk_web_send (req, "<td align=right>%s</td>", tag);
    }
    void addf (const char *tag)
    {                            // Foot (well, end of row)
-      revk_web_send (req, "<td colspan=2 id='%s'></td></tr>", tag);
+      revk_web_send (req, "<td colspan=2 id='%s'></td>", tag);
+      tre ();
    }
-   void add (const char *tag, const char *field, ...)
+   void add (const char *class, const char *tag, const char *field, ...)
    {
-      addh (tag);
+      addh (class, tag);
       va_list ap;
       va_start (ap, field);
       int n = 0;
@@ -1862,7 +1875,9 @@ web_root (httpd_req_t * req)
             break;
          if (n == 5)
          {
-            revk_web_send (req, "</tr><tr><td></td>");
+            tre ();
+            tr (class);
+            revk_web_send (req, "<td></td>");
             n = 0;
          }
          n++;
@@ -1884,34 +1899,35 @@ web_root (httpd_req_t * req)
                      "<td title=\"%s\"><label class=switch><input type=checkbox id=\"%s\" onchange=\"w('%s',this.checked);\"><span class=slider></span></label></td>",
                      help, field, field);
    }
-   void addslider (const char *tag, const char *field, int min, int max, const char *step)
+   void addslider (const char *class, const char *tag, const char *field, int min, int max, const char *step)
    {
-      addh (tag);
+      addh (class, tag);
       revk_web_send (req,
                      "<td colspan=6><a onclick=\"if(+document.F.%s.value>%d)w('%s',+document.F.%s.value-%s);\" class=pn>-</a><input type=range class=temp min=%d max=%d step=%s id=%s onchange=\"w('%s',+this.value);\"><a onclick=\"if(+document.F.%s.value<%d)w('%s',+document.F.%s.value+%s);\" class=pn>+</a><button id=\"T%s\" onclick=\"return false;\"></button></td>",
                      field, min, field, field, step, min, max, step, field, field, field, max, field, field, step, field);
       addf (tag);
    }
-   revk_web_send (req, "<tr>");
+   tr (NULL);
    addb ("Power", "power", "Main\npower");
    revk_web_send (req, "</tr>");
    if (noauto)
-      add ("Mode", "A", "Heat", "H", "Cool", "C", "Dry", "D", "Fan", "F", NULL);
+      add (NULL, "Mode", "A", "Heat", "H", "Cool", "C", "Dry", "D", "Fan", "F", NULL);
    else
-      add ("Mode", "mode", "Auto", "A", "Heat", "H", "Cool", "C", "Dry", "D", "Fan", "F", NULL);
+      add (NULL, "Mode", "mode", "Auto", "A", "Heat", "H", "Cool", "C", "Dry", "D", "Fan", "F", NULL);
    if (have_5_fan_speeds ())
-      add ("Fan", "fan", "1", "1", "2", "2", "3", "3", "4", "4", "5", "5", "Night", "Q", "Auto", "A", NULL);
+      add (NULL, "Fan", "fan", "1", "1", "2", "2", "3", "3", "4", "4", "5", "5", "Night", "Q", "Auto", "A", NULL);
    else if (proto_type () == PROTO_TYPE_CN_WIRED)
-      add ("Fan", "fan", "Low", "1", "Mid", "3", "High", "5", "Auto", "A", "Quiet", "Q", NULL);
+      add (NULL, "Fan", "fan", "Low", "1", "Mid", "3", "High", "5", "Auto", "A", "Quiet", "Q", NULL);
    else
-      add ("Fan", "fan", "Low", "1", "Mid", "3", "High", "5", NULL);
+      add (NULL, "Fan", "fan", "Low", "1", "Mid", "3", "High", "5", NULL);
    if (!nohumidify)
-      add ("Hum", "humidify", "Off", "X", "Low", "L", "Std", "S", "High", "H", "Cont", "C", NULL);
+      add (NULL, "Hum", "humidify", "Off", "X", "Low", "L", "Std", "S", "High", "H", "Cont", "C", NULL);
    void addt (const char *tag, const char *help)
    {
       revk_web_send (req, "<td title=\"%s\" align=right>%s<br><span id=\"%s\"></span></td>", help, tag, tag);
    }
-   revk_web_send (req, "<tr><td>Temps</td>");
+   tr (NULL);
+   revk_web_send (req, "<td>Temps</td>");
    if (daikin.status_known & CONTROL_inlet)
       addt ("Inlet", "Inlet temperature");
    if (daikin.status_known & CONTROL_home)
@@ -1931,23 +1947,23 @@ web_root (httpd_req_t * req)
       addt ("Hum", "External BLE humidity");
    }
 #endif
-   revk_web_send (req, "</tr>");
+   tre ();
    if (daikin.status_known & CONTROL_demand)
-      addslider ("Demand", "demand", 30, 100, "5");
+      addslider (NULL, "Demand", "demand", 30, 100, "5");
    if (daikin.status_known & (CONTROL_econo | CONTROL_powerful | CONTROL_led))
    {
-      revk_web_send (req, "<tr>");
+      tr (NULL);
       if (daikin.status_known & CONTROL_econo)
          addb ("♻", "econo", "Econo\nmode");
       if (daikin.status_known & CONTROL_powerful)
          addb ("💪", "powerful", "Powerful\nmode");
       if (daikin.status_known & CONTROL_led)
          addb ("💡", "led", "LED\nhigh");
-      revk_web_send (req, "</tr>");
+      tre ();
    }
    if (daikin.status_known & (CONTROL_swingv | CONTROL_swingh | CONTROL_comfort | CONTROL_sleep))
    {
-      revk_web_send (req, "<tr>");
+      tr (NULL);
       if (daikin.status_known & CONTROL_swingv)
          addb ("↕", "swingv", "Vertical\nSwing");
       if (daikin.status_known & CONTROL_swingh)
@@ -1960,14 +1976,14 @@ web_root (httpd_req_t * req)
    }
    if (daikin.status_known & (CONTROL_streamer | CONTROL_sensor | CONTROL_quiet))
    {
-      revk_web_send (req, "<tr>");
+      tr (NULL);
       if (daikin.status_known & CONTROL_streamer)
          addb ("🦠", "streamer", "Stream/\nfilter");
       if (daikin.status_known & CONTROL_sensor)
          addb ("🙆", "sensor", "Sensor\nmode");
       if (daikin.status_known & CONTROL_quiet)
          addb ("🤫", "quiet", "Quiet\noutdoor");
-      revk_web_send (req, "</tr>");
+      tre();
    }
    revk_web_send (req, "</table>"       //
                   "<p id=offline style='display:none'><b>System is offline (no data tx/rx).</b></p>"    //
@@ -1979,7 +1995,7 @@ web_root (httpd_req_t * req)
 
    if (autor || ble_sensor_connected () || (!nofaikoutauto && !daikin.remote))
    {
-      revk_web_send (req, "<tr>");
+      tr (NULL);
       addb ("Enable", "autoe", "Enable auto");
       revk_web_send (req, "</tr>");
       void addnote (const char *note)
@@ -1994,11 +2010,11 @@ web_root (httpd_req_t * req)
       }
       revk_web_send (req,
                      "<div id=remote><hr><p>Faikin-auto mode (sets hot/cold and temp high/low to aim for the following target), and timed and auto power on/off.</p><table>");
-      add ("Enable", "autor", "Off", "0", fahrenheit ? "±0.9℉" : "±½℃", "0.5", fahrenheit ? "±1.8℉" : "±1℃", "1",
+      add (NULL, "Enable", "autor", "Off", "0", fahrenheit ? "±0.9℉" : "±½℃", "0.5", fahrenheit ? "±1.8℉" : "±1℃", "1",
            fahrenheit ? "±3.6℉" : "±2℃", "2", NULL);
-      addslider ("Target", "autot", tmin, tmax, get_temp_step ());
+      addslider (NULL, "Target", "autot", tmin, tmax, get_temp_step ());
       addnote ("Timed on and off (set other than 00:00)<br>Automated on/off if temp is way off target.");
-      revk_web_send (req, "<tr>");
+      tr (NULL);
       addtime ("On", "auto1");
       addtime ("Off", "auto0");
       addb ("Auto", "autop", "Auto\non/off");
@@ -2039,6 +2055,16 @@ web_root (httpd_req_t * req)
    // ESP8266: No websockets
    revk_web_send (req, "</form>"        //
                   "</div>"      //
+                  "<style>"     //
+                  ".xautoe .autoe,"        //
+                  ".xautor .autor,"        //
+                  ".xslave .slave,"        //
+                  ".xloopback .loopback,"        //
+                  ".xantifreeze .antifreeze,"        //
+                  ".xcontrol .control,"        //
+                  ".isremote .remote,"        //
+                  ".xoffline .offline {display:none;}"   //
+                  "</style>"    //
                   "<script>"    //
                   "function cf(v){return %s;}"  //
                   "function g(n){return document.getElementById(n);};"  //
@@ -2058,11 +2084,6 @@ web_root (httpd_req_t * req)
                   "g('top').className='on';"
                   "o=JSON.parse(rt);"
                   "b('power',o.power);" //
-                  "h('offline',!o.online&&o.protocol!='loopback');"     //
-                  "h('loopback',o.protocol=='loopback');"       //
-                  "h('control',o.control);"     //
-                  "h('slave',o.slave);" //
-                  "h('remote',!o.remote);"      //
                   "b('swingh',o.swingh);"       //
                   "b('swingv',o.swingv);"       //
                   "b('sleep',o.sleep);"       //
