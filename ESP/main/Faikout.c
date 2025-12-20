@@ -1996,7 +1996,7 @@ web_root (httpd_req_t * req)
    if (autor || ble_sensor_connected () || (!nofaikoutauto && !daikin.remote))
    {
       tr (NULL);
-      addb ("Enable", "autoe", "Enable auto");
+      addb ("Enable", "autoe", "Enable");
       revk_web_send (req, "</tr>");
       void addnote (const char *note)
       {
@@ -2017,7 +2017,7 @@ web_root (httpd_req_t * req)
       tr (NULL);
       addtime ("On", "auto1");
       addtime ("Off", "auto0");
-      addb ("Auto", "autop", "Auto\non/off");
+      addb ("Auto", "autop", "Auto ⏼");
       revk_web_send (req, "</tr>");
 #ifdef ELA
       if (ble)
