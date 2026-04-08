@@ -3223,8 +3223,7 @@ send_ha_config (void)
    addwh (daikin.status_known & CONTROL_Whcooling, "energycool", "Lifetime cooling energy", NULL);
    ha_config_binary ("online",.name = "Online",.field = "online");
 
-   if (asprintf (&topic, "homeassistant/sensor/%s%s/config", revk_id, "restart") >= 0)
-   if (asprintf (&topic, "homeassistant/button/%s%s/config", revk_id, "restart") >= 0)
+   if (asprintf (&topic, "%s/button/%s%s/config", topicha, revk_id, "restart") >= 0)
    {
       jo_t j = make ("restart", NULL);
       jo_string (j, "name", "Restart");
