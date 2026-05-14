@@ -2236,6 +2236,10 @@ web_root (httpd_req_t * req)
 static esp_err_t
 web_status (httpd_req_t * req)
 {
+#ifdef  CONFIG_REVK_WEB_AUTH
+   if (!web_auth_check (req))
+      return ESP_OK;
+#endif
    jo_t j = daikin_status ();
    const char *reason;
    int t;
@@ -2841,6 +2845,10 @@ legacy_discovery_task (void *pvParameters)
 static esp_err_t
 web_control (httpd_req_t * req)
 {
+#ifdef  CONFIG_REVK_WEB_AUTH
+   if (!web_auth_check (req))
+      return ESP_OK;
+#endif
    const char *err = NULL;
    jo_t j = revk_web_query (req);
    if (!j)
