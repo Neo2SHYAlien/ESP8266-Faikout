@@ -1860,7 +1860,7 @@ web_head (httpd_req_t * req, const char *title)
                   ".on{opacity:1;transition:1s;}"       // 
                   ".off{opacity:0;transition:1s;}"      // 
                   "select{min-height:34px;border-radius:34px;background-color:#ccc;border:1px solid gray;color:black;box-shadow:3px 3px 3px #0008;}"    //
-                  "input.temp{width:100%;max-width:230px;}"        //
+                  "input.temp{min-width:230px;}"        //
                   "input.time{min-height:34px;min-width:64px;border-radius:34px;background-color:#ccc;border:1px solid gray;color:black;box-shadow:3px 3px 3px #0008;}" //
                   "a.pn{min-height:34px;min-width:34px;border-radius:30px;background-color:#ccc;border:1px solid gray;color:black;box-shadow:3px 3px 3px #0008;margin:3px;padding:3px 10px;font-size:100%%;}"   //
                   "</style><body><h1>%s</h1>", title ? : "");
@@ -2065,7 +2065,7 @@ web_root (httpd_req_t * req)
                            tag, field, field);
          }
          revk_web_send (req,
-                        "<div id=remote><hr><p>Faikin-auto mode (sets hot/cold and temp high/low to aim for the following target), and timed and auto power on/off.</p><table width=100%%>");
+                        "<div id=remote><hr><p>Faikin-auto mode (sets hot/cold and temp high/low to aim for the following target), and timed and auto power on/off.</p><table>");
          add (NULL, "Enable", "autor", "Off", "0", fahrenheit ? "±0.9℉" : "±½℃", "0.5", fahrenheit ? "±1.8℉" : "±1℃", "1",
               fahrenheit ? "±3.6℉" : "±2℃", "2", NULL);
          addslider (NULL, "Target", "autot", tmin, tmax, get_temp_step ());
