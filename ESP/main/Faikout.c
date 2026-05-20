@@ -1578,14 +1578,12 @@ autosub (void *json, const char *topic, jo_t j)
 {
    if (!ble_sensor_connected () && jo_find (j, (char *) json) == JO_NUMBER)
    {
-      xSemaphoreTake (daikin.mutex, portMAX_DELAY);
       daikin.controlvalid = uptime () + tcontrol;
       float env = jo_read_float (j);
       if (daikin.env != env)
          daikin.status_changed = 1;
       daikin.env = env;
       daikin.status_known |= CONTROL_env;       // So we report it
-      xSemaphoreGive (daikin.mutex);
    }
 }
 
