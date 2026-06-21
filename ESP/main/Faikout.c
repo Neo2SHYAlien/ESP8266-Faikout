@@ -1540,7 +1540,7 @@ daikin_control (jo_t j, uint8_t insecure)
    {
       const char *err = NULL;
       char tag[20] = "",
-         val[20] = "";
+         val[30] = "";
       jo_strncpy (j, tag, sizeof (tag));
       t = jo_next (j);
       jo_strncpy (j, val, sizeof (val));
