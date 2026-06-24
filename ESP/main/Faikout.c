@@ -2944,9 +2944,9 @@ send_ha_config (void)
       else
       {
          char ip[40];
-         if (revk_ipv6 (ip))
+         if (revk_ipv6 (sta_netif, ip))
             jo_stringf (j, "cu", "http://[%s]/", ip);
-         else if (revk_ipv4 (ip))
+         else if (revk_ipv4 (sta_netif, ip))
             jo_stringf (j, "cu", "http://%s/", ip);
       }
       jo_close (j);
@@ -3521,13 +3521,10 @@ app_main ()
    if (webcontrol || websettings)
    {
       // Web interface
-      httpd_config_t config = HTTPD_DEFAULT_CONFIG ();
-      config.lru_purge_enable = true;
-      config.stack_size += 4096;        // Being on the safe side
-      config.max_open_sockets += 5;     // More sockets
-      // When updating the code below, make sure this is enough
-      // Note that we're also adding revk's own web config handlers
-      config.max_uri_handlers = 17 + revk_num_web_handlers ();
+      httpd_config_t config = revk_httpd_config (17);
+      // The library asks for 6K; this port has always run the web task with 8K
+      // (it has local handlers the library knows nothing about), keep that.
+      config.stack_size += 2048;
       ESP_LOGE (TAG, "HTTPD stack %u sockets %u handlers %u", config.stack_size, config.max_open_sockets, config.max_uri_handlers);
       if (!httpd_start (&webserver, &config))
       {
