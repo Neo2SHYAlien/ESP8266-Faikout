@@ -125,7 +125,7 @@ struct FanMode
    const char *name;
 };
 
-const struct FanMode fans_5_auto[] = {
+const struct FanMode fans_5_auto[] = {  // Order matches S21
    {'A', "auto"},
    {'1', "low"},
    {'2', "lowMedium"},
@@ -136,7 +136,7 @@ const struct FanMode fans_5_auto[] = {
    {0, NULL}
 };
 
-const struct FanMode fans_3_auto[] = {
+const struct FanMode fans_3_auto[] = {  // Order matches S21
    {'A', "auto"},
    {'1', "low"},
    {0, "lowMedium"},            // Not used
@@ -614,8 +614,8 @@ daikin_s21_response (const uint8_t * cmd_buf, int len, uint8_t * payload)
             if (!s21.rgfan)
             {                   // RG is better, so we only look at G1 if RG does not work
                if (payload[3] == 'B')   // Some actually report quiet in G1
-                  report_uint8 (fan, 6);        // Quiet mode set (it returns as auto, so we assume it should be quiet if fan speed is low)
-               else if (payload[3] != 'A')   // Set fan speed
+                  report_uint8 (fan, 6);        // Quiet mode set
+               else if (payload[3] != 'A')      // Set fan speed
                   report_uint8 (fan, "00012345"[payload[3] & 0x7] - '0');       // XXX12345 mapped to A12345Q
                else if (daikin.fan == 6)
                   report_uint8 (fan, 6);        // Quiet mode set and returned as auto, so assume really is quiet
@@ -2880,16 +2880,19 @@ web_control (httpd_req_t * req)
 
 static void
 addmodes (jo_t j, const struct FanMode *modes)
-{
+{                               // HA fan modes, order adjusted
    const struct FanMode *f;
 
    jo_array (j, "fan_modes");
    for (f = modes; f->name; f++)
-   {
-      // Only list modes, which are valid for current protocol
-      if (f->mode)
+      if (f->mode == 'A')
          jo_string (j, NULL, f->name);
-   }
+   for (f = modes; f->name; f++)
+      if (f->mode == 'Q')
+         jo_string (j, NULL, f->name);
+   for (f = modes; f->name; f++)
+      if (f->mode && f->mode != 'A' && f->mode != 'Q')
+         jo_string (j, NULL, f->name);
    jo_close (j);
 }
 
