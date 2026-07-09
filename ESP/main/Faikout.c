@@ -3252,8 +3252,9 @@ send_ha_config (void)
       revk_mqtt_send (NULL, 1, topic, &j);
       free (topic);
    }
-   ha_config_sensor ("ram",.name = "RAM",.field = "mem",.unit = "B",.delete = !haram);
-   ha_config_sensor ("spi",.name = "PSRAM",.field = "spi",.unit = "B",.delete = !haram);
+   // TODO change above over gradually to new HA library stuff to make way neater
+   ha_config_sensor ("ram",.name = "RAM",.field = "mem",.unit = "B",.diag=1,.delete = !haram);
+   ha_config_sensor ("spi",.name = "PSRAM",.field = "spi",.unit = "B",.diag=1,.delete = !haram);
    free (cmd);
    free (hastatus);
 }
