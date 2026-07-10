@@ -1601,7 +1601,7 @@ mqtt_client_callback (int client, const char *prefix, const char *target, const 
       daikin.talking = 0;       // Disconnect and reconnect
       return "";
    }
-   if (!strcmp (suffix, "connect") || !strcmp (suffix, "status"))
+   if (!strcmp (suffix, "connect"))
    {
       daikin.status_report = 1; // Report status on connect
       daikin.ha_send = 1;
@@ -4045,8 +4045,11 @@ app_main ()
             {
                jo_t j = daikin_status ();
                revk_state ("status", &j);
+               if (haperiodic)
+                  ha_status ();
             }
-            ha_status ();
+            if (!haperiodic)
+               ha_status ();
          }
          // Stats
 #define b(name)         if(daikin.name)daikin.total##name++;
