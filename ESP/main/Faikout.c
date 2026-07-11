@@ -1546,7 +1546,7 @@ daikin_control (jo_t j, uint8_t insecure)
 }
 
 // --------------------------------------------------------------------------------
-char debugsend[10] = "";
+jo_t debugsend = NULL;
 
 void
 autosub (void *json, const char *topic, jo_t j)
@@ -1583,9 +1583,13 @@ mqtt_client_callback (int client, const char *prefix, const char *target, const 
       daikin.status_report = 1; // Report status on connect
       daikin.ha_send = 1;
    }
-   if (!strcmp (suffix, "send") && jo_here (j) == JO_STRING)
+   if (!strcmp (suffix, "send"))
    {
-      jo_strncpy (j, debugsend, sizeof (debugsend));
+      if (!j)
+         return "Specify data to send";
+      if (debugsend)
+         return "Send pending";
+      debugsend = jo_copy (j);
       return "";
    }
    if (!strcmp (suffix, "control"))
@@ -3778,12 +3782,43 @@ app_main ()
                }
                if (!ok)
                   daikin.talking = 0;   // Not replying
-               if (*debugsend)
+               if (debugsend)
                {
                   b.dumping = 1;        // Force dumping
-                  if (debugsend[1])
-                     daikin_s21_command (debugsend[0], debugsend[1], strlen (debugsend + 2), debugsend + 2);
-                  *debugsend = 0;
+                  while (jo_here (debugsend) != JO_END)
+                  {
+                     if (jo_here (debugsend) == JO_STRING)
+                     {
+                        char temp[10];
+                        ssize_t l = jo_strncpy (debugsend, temp, sizeof (temp));
+                        if (l > sizeof (temp))
+                        {
+                           ESP_LOGE (TAG, "send too long %d", l);
+                           l = sizeof (temp);
+                        }
+                        // JSON is UTF-8 coded, but that makes no sense, so pack to latin 1
+                        uint8_t *i = (uint8_t *) temp,
+                           *e = i + l,
+                           *o = i;
+                        while (i < e)
+                        {
+                           if (*i >= 0xC2 && *i <= 0xC3 && i + 1 < e && (i[1] & 0xC0) == 0x80)
+                           {    // 0x80 to 0xFF encoded as UTF-8
+                              *o++ = ((*i & 0x03) << 6) | (i[1] & 0x3F);
+                              i += 2;
+                              l--;
+                              continue;
+                           }
+                           *o++ = *i++;
+                        }
+                        if (l < 2)
+                           ESP_LOGE (TAG, "send too short %d", l);
+                        else
+                           daikin_s21_command (temp[0], temp[1], l - 2, temp + 2);
+                     }
+                     jo_next (debugsend);
+                  }
+                  jo_free (&debugsend);
                   b.dumping = dump;     // Back to setting
                }
 #undef poll
@@ -3891,6 +3926,23 @@ app_main ()
                }
                daikin_x50a_command (0xCA, sizeof (ca), ca);
                daikin_x50a_command (0xCB, sizeof (cb), cb);
+               if (debugsend)
+               {
+                  uint8_t cmd = 0,
+                     len = 0;
+                  uint8_t buf[20];
+                  jo_type_t t = jo_find (debugsend, "cmd");
+                  if (t == JO_NUMBER)
+                     cmd = jo_read_int (debugsend);
+                  else if (t == JO_STRING)
+                     jo_strncpy16 (debugsend, &cmd, 1);
+                  t = jo_find (debugsend, "data");
+                  if (t == JO_STRING)
+                     len = jo_strncpy16 (debugsend, buf, sizeof (buf));
+                  if (cmd && len)
+                     daikin_x50a_command (cmd, len, buf);
+                  jo_free (&debugsend);
+               }
             }
          }
          if (daikin.power && (daikin.status_known & CONTROL_outside) && !isnan (daikin.outside) && daikin.outside < minoutside)
