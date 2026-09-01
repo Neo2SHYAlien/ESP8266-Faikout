@@ -3446,7 +3446,8 @@ register_get_uri (const char *uri, esp_err_t (*handler) (httpd_req_t * r))
    httpd_uri_t uri_struct = {
       .uri = uri,
       .method = HTTP_GET,
-      .handler = handler,
+      .handler = revk_web_auth,
+      .user_ctx = handler,
    };
 
    register_uri (&uri_struct);
