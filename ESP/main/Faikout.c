@@ -2813,6 +2813,9 @@ addmodes (jo_t j, const struct FanMode *modes)
 // Compose and send HomeAssistant MQTT auto-discovery message
 // According to https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery
 static void
+// ESP8266: ha_config_binary is missing in the pinned library - local equivalent
+#define ha_config_binary(...)  ha_config_opts("binary_sensor",(ha_config_t){__VA_ARGS__})
+
 send_ha_config (void)
 {
    if (!revk_mqtt (0))
@@ -3132,6 +3135,7 @@ send_ha_config (void)
    addwh (daikin.status_known & CONTROL_Whoutside, "energy", "Lifetime outside energy", NULL);
    addwh (daikin.status_known & CONTROL_Whheating, "energyheat", "Lifetime heating energy", NULL);
    addwh (daikin.status_known & CONTROL_Whcooling, "energycool", "Lifetime cooling energy", NULL);
+   ha_config_binary ("online",.name = "Online",.field = "online");
 
    if (asprintf (&topic, "homeassistant/sensor/%s%s/config", revk_id, "restart") >= 0)
    if (asprintf (&topic, "homeassistant/button/%s%s/config", revk_id, "restart") >= 0)
