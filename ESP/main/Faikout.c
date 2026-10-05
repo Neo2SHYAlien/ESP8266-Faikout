@@ -3647,7 +3647,8 @@ app_main ()
 #endif
          if (!daikin.remote && autoe && autor && autot)
          {                      // Automatic setting of "external" controls, autot is temp(*autot_scale), autor is range(*autor_scale), autob is BLE name
-            daikin.controlvalid = uptime () + 10;
+            if ((!ble_sensor_enabled () || ble_sensor_connected ()) && daikin.controlvalid < uptime () + 10)
+               daikin.controlvalid = uptime () + 10;    // For some reason we set this here not when getting BLE value, but non BLE sets it anyway, so only needed here for BLE, - may need some more thought
             daikin.mintarget = (float) autot / autot_scale - (float) autor / autor_scale;
             daikin.maxtarget = (float) autot / autot_scale + (float) autor / autor_scale;
          }
