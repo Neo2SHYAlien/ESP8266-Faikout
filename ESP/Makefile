@@ -3,7 +3,7 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := Faikin
+PROJECT_NAME := Faikout
 SUFFIX := $(shell components/ESP32-RevK/buildsuffix)
 
 ifeq ($(wildcard /bin/csh),)

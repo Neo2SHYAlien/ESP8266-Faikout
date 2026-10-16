@@ -26,7 +26,7 @@ echo 8266 $ISSUE_KIND > .release-commit.tmp
 echo >> .release-commit.tmp
 echo -n "libRevK: " >> .release-commit.tmp
 git rev-parse --short @:./components/ESP32-RevK >> .release-commit.tmp
-./parse_appdesc.py Faikin-8266.desc >> .release-commit.tmp
+./parse_appdesc.py Faikout-8266.desc >> .release-commit.tmp
 echo >> .release-commit.tmp
 
 if [ "$?" != "0" ]; then
@@ -34,8 +34,8 @@ if [ "$?" != "0" ]; then
 	exit 255
 fi
 
-cp Faikin-*.bin $ISSUE_KIND
-cp Faikin-*.desc $ISSUE_KIND
+cp Faikout-*.bin $ISSUE_KIND
+cp Faikout-*.desc $ISSUE_KIND
 
 git commit -a -t .release-commit.tmp --signoff
 git push
