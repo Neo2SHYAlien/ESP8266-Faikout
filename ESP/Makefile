@@ -10,7 +10,7 @@ ifeq ($(wildcard /bin/csh),)
 $(error	Please install /bin/csh or equivalent)
 endif
 
-all:	settings.h
+all:	main/settings.h
 	@echo Make: $(PROJECT_NAME)$(SUFFIX).bin
 	@idf.py build
 	@cp build/$(PROJECT_NAME).bin $(PROJECT_NAME)$(SUFFIX).bin
@@ -29,7 +29,7 @@ beta:
 issue:
 	./issue.sh release
 
-settings.h:     components/ESP32-RevK/revk_settings main/settings.def components/ESP32-RevK/settings.def
+main/settings.h:     components/ESP32-RevK/revk_settings main/settings.def components/ESP32-RevK/settings.def
 	components/ESP32-RevK/revk_settings $^
 
 components/ESP32-RevK/revk_settings: components/ESP32-RevK/revk_settings.c

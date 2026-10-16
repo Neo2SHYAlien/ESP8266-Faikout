@@ -1,6 +1,6 @@
 [submodule "components/ESP32-RevK"]
 	path = ESP/components/ESP32-RevK
-	url = https://codeberg.org/RevK/ESP32-RevK
+	url = ssh://git@codeberg.org/Neo2SHYAlien/ESP32-RevK.git
 [submodule "ftdizap"]
 	path = ESP/ftdizap
 	url = https://codeberg.org/RevK/ftdizap
