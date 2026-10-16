@@ -2083,6 +2083,11 @@ web_root (httpd_req_t * req)
                   "{"
                   "g('top').className='on';"
                   "o=JSON.parse(rt);"
+                  "h('offline',!o.online&&o.protocol!='loopback');"     //
+                  "h('loopback',o.protocol=='loopback');"       //
+                  "h('control',o.control);"     //
+                  "h('slave',o.slave);" //
+                  "h('remote',!o.remote);"      //
                   "b('power',o.power);" //
                   "b('swingh',o.swingh);"       //
                   "b('swingv',o.swingv);"       //
