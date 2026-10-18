@@ -13,3 +13,4 @@ managed_components
 !release/*.desc
 settings.c
 settings.h
+version.txt
