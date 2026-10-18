@@ -3777,6 +3777,8 @@ app_main ()
 
                // R polling one per cycle
                static uint8_t rcycle = 0;
+               if (!rcycle)      // One per full cycle (upstream: if (!slowcycle) polls++;)
+                  polls++;
                switch (rcycle++)
                {
                case 0:
