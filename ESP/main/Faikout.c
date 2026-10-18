@@ -2873,9 +2873,6 @@ addmodes (jo_t j, const struct FanMode *modes)
 // Compose and send HomeAssistant MQTT auto-discovery message
 // According to https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery
 static void
-// ESP8266: ha_config_binary is missing in the pinned library - local equivalent
-#define ha_config_binary(...)  ha_config_opts("binary_sensor",(ha_config_t){__VA_ARGS__})
-
 send_ha_config (void)
 {
    if (!revk_mqtt (0))
