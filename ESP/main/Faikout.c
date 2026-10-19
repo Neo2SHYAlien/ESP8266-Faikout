@@ -3455,7 +3455,7 @@ revk_web_extra (httpd_req_t * req, int page)
    if (*mqtthost[0] && !revk_mqtt (0))
       revk_web_setting_info (req, "Note, MQTT not connected: %s", mqtthost[0]);
    if (daikin.ha_sent)
-      revk_web_setting_info (req, "Note, HA config sent (%s/…)", "homeassistant");
+      revk_web_setting_info (req, "Note, HA config sent (%s/…)", topicha);
    else if (haenable)
       revk_web_setting_info (req, "Note, HA config not yet sent%s%s%s%s", *mqtthost[0] ? "" : " (no MQTT config)",
                              daikin.ha_send ? " (send pending)" : "", b.protocol_set ? "" : " (protocol not set)",
