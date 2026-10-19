@@ -3452,20 +3452,6 @@ register_get_uri (const char *uri, esp_err_t (*handler) (httpd_req_t * r))
 void
 revk_web_extra (httpd_req_t * req, int page)
 {
-   // ESP8266: revk_web_setting_info is missing in the pinned library - local equivalent
-   void revk_web_setting_info (httpd_req_t * req, const char *fmt, ...)
-   {
-      char *msg = NULL;
-      va_list ap;
-      va_start (ap, fmt);
-      vasprintf (&msg, fmt, ap);
-      va_end (ap);
-      if (msg)
-      {
-         revk_web_send (req, "<tr><td colspan=6><i>%s</i></td></tr>", msg);
-         free (msg);
-      }
-   }
    if (*mqtthost[0] && !revk_mqtt (0))
       revk_web_setting_info (req, "Note, MQTT not connected: %s", mqtthost[0]);
    if (daikin.ha_sent)
