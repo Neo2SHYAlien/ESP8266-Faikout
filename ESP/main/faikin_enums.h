@@ -3,7 +3,7 @@
 
 #include "cn_wired.h"
 
-// Faikin mode enums
+// Faikout mode enums
 #define FAIKIN_MODE_FAN     0
 #define FAIKIN_MODE_HEAT    1
 #define FAIKIN_MODE_COOL    2
@@ -12,7 +12,7 @@
 #define FAIKIN_MODE_DRY     7
 #define FAIKIN_MODE_INVALID -1
 
-// Faikin fan speed enums
+// Faikout fan speed enums
 #define FAIKIN_FAN_AUTO    0
 #define FAIKIN_FAN_1       1
 #define FAIKIN_FAN_2       2

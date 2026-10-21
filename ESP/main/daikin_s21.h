@@ -118,7 +118,7 @@ s21_decode_float_sensor (const unsigned char *payload)
    return (float) s21_decode_int_sensor (payload) * 0.1;
 }
 
-// Convert between Daikin and Faikin fan speed enums
+// Convert between Daikin and Faikout fan speed enums
 static inline unsigned char
 s21_encode_fan (int speed)
 {

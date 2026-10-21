@@ -1,7 +1,7 @@
-/* Faikin app */
+/* Faikout app */
 /* Copyright ©2022 Adrian Kennard, Andrews & Arnold Ltd. See LICENCE file for details .GPL 3.0 */
 
-static const char TAG[] = "Faikin";
+static const char TAG[] = "Faikout";
 
 #include "revk.h"
 #include <stdarg.h>
@@ -3455,7 +3455,7 @@ revk_web_extra (httpd_req_t * req, int page)
    revk_web_setting (req, "Dark mode LED", "dark");
    if (!daikin.remote)
    {
-      revk_web_setting (req, "Hide Faikin auto mode", "nofaikoutauto");
+      revk_web_setting (req, "Hide Faikout auto mode", "nofaikoutauto");
    }
    revk_web_setting (req, "Debug", "debug");
 }
