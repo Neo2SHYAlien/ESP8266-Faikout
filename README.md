@@ -34,7 +34,7 @@ put together such a board with minimum efforts.
 * Supported A/C interfaces: S21, S403, X50A, CN_WIRED (AKA CNW)
 
 ** !! WARNING !!! ** The `S403` port is a *non-isolated* `S21` port, i.e. it is at **MAINS POWER** levels, and dangerous.
-Any connected device, such as a Faikin, needs to be inside the case. Touch or otherwise fiddling with running hardware,
+Any connected device, such as a Faikout, needs to be inside the case. Touch or otherwise fiddling with running hardware,
 connected to this port, ** IS POTENTIALLY LETHAL ** !!!
 
 # Supported hardware
@@ -60,12 +60,12 @@ those are also expected to work.
 It is possible to build the firmware from source, but for those who don't know how to do it,
 prebuilt binaries are available in release/ folder of the repository.
 
-Faikin is built using ESP8266_RTOS_SDK, and installation requires to replace bootloader and
+Faikout is built using ESP8266_RTOS_SDK, and installation requires to replace bootloader and
 partition table. This is done by flashing all the files using esptool:
 
-esptool.py -p COM3 -b 460800 --after hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 8MB 0x8000 partition-table.bin 0xd000 ota_data_initial.bin 0x0 bootloader.bin 0x10000 Faikin-8266.bin
+esptool.py -p COM3 -b 460800 --after hard_reset write_flash --flash_mode dio --flash_freq 40m --flash_size 8MB 0x8000 partition-table.bin 0xd000 ota_data_initial.bin 0x0 bootloader.bin 0x10000 Faikout-8266.bin
 
-It is enough to do this only once; after you have the proper bootloader, you only need to replace the application (Faikin-8266.bin)
+It is enough to do this only once; after you have the proper bootloader, you only need to replace the application (Faikout-8266.bin)
 
 If you built from source, the same result is achieved by simply running "make flash".
 

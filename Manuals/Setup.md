@@ -1,6 +1,6 @@
-# Faikin - set-up
+# Faikout - set-up
 
-The *Faikin-8266* is an alternative firmware for Daichi wi-fi controllers, designed to be a cloud-free
+The *Faikout-8266* is an alternative firmware for Daichi wi-fi controllers, designed to be a cloud-free
 and fully compatible with original Daikin air-con BRP series control WiFi modules.
 
 - Local web control over WiFi, no cloud/account needed, no Internet needed
@@ -36,7 +36,7 @@ MQTT setting, e.g. `setting/GuestAC {"blink":[0,0,0]}`.
 
 One installed, the LED should light up and blink.
 
-Look for a WiF Access Point called Daikin (or Faikin), e.g.
+Look for a WiF Access Point called Faikout-xxxx (or Daikin), e.g.
 
 ![WiFiAP](WiFi1.png)
 
