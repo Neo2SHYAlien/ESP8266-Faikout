@@ -2264,6 +2264,12 @@ web_status (httpd_req_t * req)
 
    httpd_resp_set_type (req, "application/json");
 
+   {
+      static int memlog = 0;
+      if (!(++memlog % 60))
+         ESP_LOGI (TAG, "HTTPD stack spare %u (mem %ld)", uxTaskGetStackHighWaterMark (NULL), (long) esp_get_free_heap_size ());
+   }
+
    if (js) {
       httpd_resp_sendstr (req, js);
       free (js);
@@ -3511,6 +3517,7 @@ app_main ()
       ESP_LOGE (TAG, "HTTPD stack %u sockets %u handlers %u", config.stack_size, config.max_open_sockets, config.max_uri_handlers);
       if (!httpd_start (&webserver, &config))
       {
+         ESP_LOGI (TAG, "Free heap %u (min %u)", (unsigned) esp_get_free_heap_size (), (unsigned) esp_get_minimum_free_heap_size ());
          if (websettings)
             revk_web_settings_add (webserver);
          revk_register_get_uri (webserver, "/", web_root);
@@ -3627,6 +3634,7 @@ app_main ()
       daikin.ha_send = 1;
       memset (&s21, 0, sizeof (s21));   // Clear all S21 message status
       int polls = 0;
+      static int heaplog = 0;
       do
       {
          // Polling loop. We exit from here only if we get a protocol error
@@ -3636,6 +3644,11 @@ app_main ()
                A/C, so we don't need this delay. We just keep reading, packets should
                come once per second, and that's our timing */
             usleep (1000000LL - (esp_timer_get_time () % 1000000LL));
+         }
+         if (!(++heaplog % 60))
+         {                      // Memory watchdog - the 8266 has very little to spare
+            ESP_LOGI (TAG, "Free heap %u (min %u) stack spare %u", (unsigned) esp_get_free_heap_size (),
+                     (unsigned) esp_get_minimum_free_heap_size (), (unsigned) uxTaskGetStackHighWaterMark (NULL));
          }
 #ifdef ELA
          if (ble_sensor_connected ())
