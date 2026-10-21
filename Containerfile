@@ -1,4 +1,4 @@
-# Build environment for ESP8266-Faikin (Daikin WiFi controller, ESP8266 port).
+# Build environment for ESP8266-Faikout (Daikin WiFi controller, ESP8266 port).
 #
 #   podman build -t faikin-8266-build:v3.4 -f Containerfile .
 #   podman run --rm -v "$PWD":/repo -w /repo/ESP faikin-8266-build:v3.4 make

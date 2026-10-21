@@ -3940,7 +3940,7 @@ app_main ()
                         temp[3] = '0' + (daikin.led ? dark ? 8 : 4 : 12);
                      // FIXME: ATX20K2V1B responds NAK to this command, but also doesn't react on D3.
                      // Looks like it supports something else, we don't know what.
-                     // https://github.com/revk/ESP32-Faikin/issues/441
+                     // https://github.com/revk/ESP32-Faikout/issues/441
                      daikin_s21_command ('D', '6', S21_PAYLOAD_LEN, temp);
                   } else if (!s21.F3.bad)
                   {             // F3 or F6 depends on model

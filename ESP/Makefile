@@ -60,7 +60,7 @@ update:
 
 # Program the FTDI
 ftdi: ftdizap/ftdizap
-	./ftdizap/ftdizap --serial="RevK" --description="Faikin" --cbus2-mode=17 --self-powered=1
+	./ftdizap/ftdizap --serial="RevK" --description="Faikout" --cbus2-mode=17 --self-powered=1
 
 ifeq ($(shell uname),Darwin)
 INCLUDES=-I/usr/local/include/

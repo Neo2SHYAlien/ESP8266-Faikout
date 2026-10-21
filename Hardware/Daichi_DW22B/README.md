@@ -7,13 +7,13 @@ conditioners of various vendors, including Daikin, but it has the following disa
 - Does not support any sort of local connection
 - Software is slow and of poor quality
 
-This board is the original target for Faikin-8266 port.
+This board is the original target for Faikout-8266 port.
 
 <img src="Daichi_PCB.png"><BR>
 
 Original vendor web page: http://aircon-wifi.ru/rac (russian language only)
 
-# Installing Faikin
+# Installing Faikout
 
 The board looks like it has a USB port, while in reality it's a serial port, just using a USB-Mini connector.
 See the supplied schematics (reverse-engineered) for pinout. In order to flash the board, it needs to be

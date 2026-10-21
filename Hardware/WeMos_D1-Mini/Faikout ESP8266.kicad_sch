@@ -2084,7 +2084,7 @@
 			(uuid "0ca57106-40db-46fa-971d-28c6544fae8d")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "#PWR08")
 					(unit 1)
@@ -2295,7 +2295,7 @@
 			(uuid "d7d7c48d-579e-45f6-8c98-936fc68d983b")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "#PWR04")
 					(unit 1)
@@ -2437,7 +2437,7 @@
 			(uuid "b2019b44-0e9c-4015-8cf5-52732a113504")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "R2")
 					(unit 1)
@@ -2503,7 +2503,7 @@
 			(uuid "20e6205e-60b4-4d99-b382-60306a0fa007")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "#PWR012")
 					(unit 1)
@@ -2640,7 +2640,7 @@
 			(uuid "fc139309-54e3-4aff-98b3-487653f2c8e6")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "R4")
 					(unit 1)
@@ -2773,7 +2773,7 @@
 			(uuid "b01f3056-bad2-4feb-9702-406a096c0c11")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "#PWR09")
 					(unit 1)
@@ -2914,7 +2914,7 @@
 			(uuid "41835f3d-329d-42b8-9f94-a56f2642ae20")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "Q2")
 					(unit 1)
@@ -2981,7 +2981,7 @@
 			(uuid "195450e3-7198-44a6-ae8e-b5343fe7a4e8")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "#PWR07")
 					(unit 1)
@@ -3047,7 +3047,7 @@
 			(uuid "525c460d-9f0a-42a9-bfc0-c89813244606")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "#PWR011")
 					(unit 1)
@@ -3114,7 +3114,7 @@
 			(uuid "6c465fe3-2883-4347-ba86-a00d166dc7c1")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "#PWR02")
 					(unit 1)
@@ -3276,7 +3276,7 @@
 			(uuid "0118b38b-c1d4-4a48-b46e-d134a5e71817")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "J1")
 					(unit 1)
@@ -3342,7 +3342,7 @@
 			(uuid "a27d6c6d-3750-49a3-8a03-ff737c5c8ba7")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "#PWR03")
 					(unit 1)
@@ -3524,7 +3524,7 @@
 			(uuid "6c047282-a27c-4084-9f2e-9c45da95b693")
 		)
 		(instances
-			(project "Faikin ESP8266"
+			(project "Faikout ESP8266"
 				(path "/3d0279ff-1af1-40fa-8c6b-3c79664d8706"
 					(reference "R3")
 					(unit 1)

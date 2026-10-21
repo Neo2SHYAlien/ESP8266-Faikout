@@ -172,4 +172,4 @@ The `snoop` and `dump` and `debug` settings can help decode what is happening.
 
 For anyone in the UK trying to reverse engineer operations using an offical remote / control, we have a small number of dual port *pass through* modules to assist with debug.
 
-<img src='https://github.com/revk/ESP32-Faikin/assets/996983/5f998a5f-d99d-40ca-bf39-fd1206c664df' width=50%><img src='https://github.com/revk/ESP32-Faikin/assets/996983/6c45b348-035e-48a7-81fb-dc43c849b11e' width=50%>
+<img src='https://github.com/revk/ESP32-Faikout/assets/996983/5f998a5f-d99d-40ca-bf39-fd1206c664df' width=50%><img src='https://github.com/revk/ESP32-Faikout/assets/996983/6c45b348-035e-48a7-81fb-dc43c849b11e' width=50%>

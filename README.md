@@ -2,7 +2,8 @@
 
 This is the ESP8266 port of [Faikout](https://codeberg.org/RevK/ESP32-Faikout), the project
 formerly known as ESP32-Faikin (renamed after a trademark complaint, see the upstream
-README). The repository is still hosted as `ESP8266-Faikin`.
+README). The repository is `ESP8266-Faikout` (renamed from ESP8266-Faikin; the old GitHub
+links redirect).
 
 I am successfully running a great Daikin air conditioning unit in an OpenHAB-powered smart home. Recently i purchased a second one for my newly
 remodeled bedroom; and was very "pleased" to see that original BRP online controller is not available for sale in my country any more due to

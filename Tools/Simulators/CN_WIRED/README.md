@@ -1,6 +1,6 @@
 # CN_WIRED conditioner simulator
 
-This simulator is a development tool, intended for debugging Faikin code in the absense of a compatible
+This simulator is a development tool, intended for debugging Faikout code in the absense of a compatible
 air conditioner. It also aids protocol reverse engineering.
 
 # Build requirements
