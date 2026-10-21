@@ -16,23 +16,25 @@ SQLVER=$(shell mariadb_config --version | sed 'sx\..*xx')
 endif
 
 ifdef	SQLINC
-TOOLS := faikin faikinlog faikingraph
+TOOLS := faikoutlog faikoutgraph
 else
 $(error Warning - mariadb/mysql not installed, needed if you want to build tools)
 endif
 
+all:	tools
+
 tools:	$(TOOLS)
 
 ifeq ($(shell uname),Darwin)
-INCLUDES=-I/usr/local/include/ -I../ESP32/main
+INCLUDES=-I/usr/local/include/ -I../ESP/main
 LIBS=-L/usr/local/Cellar/popt/1.18/lib/
 else
 LIBS=
-INCLUDES=-I../ESP32/main
+INCLUDES=-I../ESP/main
 endif
 
-SQLlib/sqllib.o: SQLlib/sqllib.c
-	make -C SQLlib
+../SQLlib/sqllib.o: ../SQLlib/sqllib.c
+	make -C ../SQLlib
 AXL/axl.o: AXL/axl.c
 	make -C AXL
 AJL/ajl.o: AJL/ajl.c
@@ -41,11 +43,11 @@ AJL/ajl.o: AJL/ajl.c
 CCOPTS=${SQLINC} -I. -I/usr/local/ssl/include -D_GNU_SOURCE -g -Wall -funsigned-char -lm
 OPTS=-L/usr/local/ssl/lib ${SQLLIB} ${CCOPTS}
 
-faikinlog: faikinlog.c SQLlib/sqllib.o AJL/ajl.o ../ESP32/main/acextras.m ../ESP32/main/acfields.m ../ESP32/main/accontrols.m
-	cc -O -o $@ $< -lpopt -lmosquitto -ISQLlib SQLlib/sqllib.o -IAJL AJL/ajl.o ${INCLUDES} ${OPTS}
+faikoutlog: faikoutlog.c ../SQLlib/sqllib.o AJL/ajl.o ../ESP/main/acextras.m ../ESP/main/acfields.m ../ESP/main/accontrols.m
+	cc -O -o $@ $< -lpopt -lmosquitto -I../ESP/main -I../SQLlib ../SQLlib/sqllib.o -IAJL AJL/ajl.o ${INCLUDES} ${OPTS}
 
-faikingraph: faikingraph.c SQLlib/sqllib.o AXL/axl.o
-	cc -O -o $@ $< -lpopt -lmosquitto -ISQLlib SQLlib/sqllib.o -IAXL AXL/axl.o -lcurl ${INCLUDES} ${OPTS}
+faikoutgraph: faikoutgraph.c ../SQLlib/sqllib.o AXL/axl.o
+	cc -O -o $@ $< -lpopt -lmosquitto -I../ESP/main -I../SQLlib ../SQLlib/sqllib.o -IAXL AXL/axl.o -lcurl ${INCLUDES} ${OPTS}
 pull:
 	git pull
 	git submodule update --recursive
