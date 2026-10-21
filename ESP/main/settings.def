@@ -18,6 +18,7 @@ bit	fahrenheit			.live					// Web shows Fahrenheit
 bit	no.s21				.live	.fix				// Do not try S21 protocol
 bit	no.x50a				.live	.fix				// Do not try X50A protocol
 bit	no.cnwired	0		.live	.fix				// Do not try CN_WIRED protocol
+bit	cn.mark900			.live					// CN_WIRED. mark using 900uS not 1000uS
 bit	no.as		1		.live	.fix				// Do not try (experimental) Altherma_S protocol
 bit	txinvert		    .fix .old="swaptx"	    // Invert Tx line
 bit	rxinvert		    .fix .old="swaprx"	    // Invert Rx line

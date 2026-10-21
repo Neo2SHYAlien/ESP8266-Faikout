@@ -12,6 +12,7 @@
 #include <esp8266/timer_struct.h>
 #include <rom/gpio.h>
 
+#include "revk.h"
 #include "cn_wired.h"
 #include "cn_wired_driver.h"
 
@@ -21,7 +22,7 @@
 
 // Pulse lengths in microseconds
 #define SYNC_LENGTH  2600
-#define START_LENGTH 1000
+#define START_LENGTH (cnmark900?900:1000)
 #define SPACE_LENGTH 300
 #define BIT_1_LENGTH 900
 #define BIT_0_LENGTH 400
