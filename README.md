@@ -1,4 +1,8 @@
-# ESP8266-Faikin
+# Faikout for ESP8266
+
+This is the ESP8266 port of [Faikout](https://codeberg.org/RevK/ESP32-Faikout), the project
+formerly known as ESP32-Faikin (renamed after a trademark complaint, see the upstream
+README). The repository is still hosted as `ESP8266-Faikin`.
 
 I am successfully running a great Daikin air conditioning unit in an OpenHAB-powered smart home. Recently i purchased a second one for my newly
 remodeled bedroom; and was very "pleased" to see that original BRP online controller is not available for sale in my country any more due to
@@ -7,13 +11,13 @@ forces me to use their proprietary cloud; not only potentially disclosing some o
 connection for no reason.
 
 Fortunately i was able not only to find some information on successfully reverse engineered Daikin "S21" communication protocol, but also find
-an awesome [ESP32-Faikin](https://github.com/revk/ESP32-Faikin/tree/main/main) project, which does the majority of the thing i need.
+an awesome [ESP32-Faikout](https://codeberg.org/RevK/ESP32-Faikout) project, which does the majority of the thing i need.
 
 My newly purchased controller, named "Daichi" (which of course has nothing to do with the japanese company), is a small board, built around
 an [AI Thinker ESP12](https://docs.ai-thinker.com/_media/esp8266/docs/esp-12f_product_specification_en.pdf) module. Therefore this project'sale
 goals are:
 
-- Backport ESP32-Faikin to ESP8266 architecture
+- Backport ESP32-Faikout to ESP8266 architecture
 - Support original HTTP+JSON-based BRP communication protocol, at least enough to support OpenHAB
 
 Since various ESP8266-based hardware is widely accessible, i am making this project opensource. A (partly) reverse-engineered Daichi controller
@@ -26,7 +30,7 @@ put together such a board with minimum efforts.
 # Functionality
 
 * Compatible with original BRP series Daikin online controllers; drop-in replacement for use with home automation systems.
-* Simple local web based control with live websocket status, easy to save as desktop icon on a mobile phone.
+* Simple local web based control with live status, easy to save as desktop icon on a mobile phone.
 * MQTT reporting and controls
 * Includes linux mysql/mariadb based logging and graphing tools
 * Works with [EnvMon](https://github.com/revk/ESP32-EnvMon) Environmental Monitor for finer control and status display
@@ -52,7 +56,7 @@ This project has been successfully tested on:
 - FTXB50C - CN_WIRED protocol
 
 There's also a list of supported models on
-[Original Faikin-ESP32 wiki](https://github.com/revk/ESP32-Faikin/wiki/List-of-confirmed-working-air-con-units);
+[ESP32-Faikout wiki](https://codeberg.org/RevK/ESP32-Faikout/wiki/List-of-confirmed-working-air-con-units);
 those are also expected to work.
 
 # Installing
@@ -71,13 +75,8 @@ If you built from source, the same result is achieved by simply running "make fl
 
 # Updates
 
-The firmware defaults to http://ota.revk.uk/ . The author of original ESP32 firmware kindly agreed to
-host a 8266 port on his server. Publishing happens with a delay, however, so there's one more update server
-at the address http://faikin-ota.home-assistant.my/ . Beta releases for testing will only appear there.
-It is possible to change the URL in advanced settings.
-
-The second update server has been kindly provided by GB Network solutions, https://www.gbnetwork.my/ .
-Huge thanks for hosting the project!
+The firmware defaults to http://ota.faikout.uk/ (the `otahost` setting). The beta setting pulls from
+the `beta/` directory on the same host. It is possible to change the URL in advanced settings.
 
 # Set-up
 
@@ -99,10 +98,11 @@ Local interactive web control page using *hostname*.local, no app required, no e
 # Upstream sync
 
 This port follows [ESP32-Faikout](https://codeberg.org/RevK/ESP32-Faikout) (formerly ESP32-Faikin; the GitHub
-copy is frozen and development moved to Codeberg). The code is currently synced up to upstream `04452edb`
-(2024-10-05), and later upstream changes are being brought over in batches. Every such commit carries
-`Ported from upstream <sha>` in its message, and `Partial:` when only part of the upstream commit applies to
-this hardware (no BLE, no i2c sensors, ESP8266 instead of ESP32).
+copy is frozen and development moved to Codeberg). The app is synced to upstream `5e36e7d0` (2026-10-21) and
+the ESP32-RevK library is pinned to `b1704d0` (upstream master `9daa5c9` plus the ESP8266 patches). Every
+upstream commit up to that point is accounted for: ported commits carry `Ported from upstream <sha>` in their
+message, and the rest are marked as not applicable to this hardware (no BLE, no i2c sensors, ESP8266 instead
+of ESP32).
 
 # Building
 
