@@ -507,6 +507,7 @@ CONFIG_REVK_STATE_EXTRA=y
 CONFIG_REVK_COOKIE_PASSWORD=y
 CONFIG_REVK_SETTINGS_PASSWORD=y
 # CONFIG_REVK_OLD_SETTINGS is not set
+# Keep "Faikin": this is the NVS namespace, renaming it orphans the stored settings.
 CONFIG_REVK_SETTINGS_NVS="Faikin"
 CONFIG_REVK_GPIO_INIT=y
 # CONFIG_REVK_SETTINGS_DEBUG is not set
